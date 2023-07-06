@@ -4,6 +4,8 @@
 //Linux -lpthread linux下需要加入-lpthread线程库
 
 using namespace std;
+using namespace chrono;
+using namespace this_thread;
 
 void ThreadMain()
 {
