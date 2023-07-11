@@ -8,20 +8,19 @@ using namespace std;
 using namespace chrono;
 using namespace this_thread;
 
-static mutex mux;
+static mutex mux;/*普通锁*/
 
 void TestThread()
 {
 	for (;;) {
 
 		//mux.lock();	/*获取锁资源，如果获取不成功则阻塞等待*/
-
 		if (!mux.try_lock()){	/*
 									尝试获得锁，假如获取成功返回true,否则返回false，
 									并不会阻塞线程,但仍然需释放
 								*/
 			cout << "." << flush;
-			sleep_for(chrono::milliseconds(100));
+			sleep_for(milliseconds(100));
 			continue;
 		}
 		cout << "===============================================" << endl;
@@ -30,18 +29,18 @@ void TestThread()
 		cout << "test 003" << endl;
 		cout << "===============================================" << endl;
 		mux.unlock();
-		sleep_for(chrono::milliseconds(1000));
+		sleep_for(milliseconds(1000));
 	}
 }
 
-void ThreadMainMux(int x)
+void ThreadMainMux(const int x)
 {
 	for (;;) {
 		mux.lock();
 		cout << x << "[in]\n";
-		sleep_for(chrono::milliseconds(1000));
+		sleep_for(milliseconds(1000));
 		mux.unlock();/*操作系统不会马上释放这个锁*/
-		sleep_for(chrono::milliseconds(1));
+		sleep_for(milliseconds(1));
 
 		/*
 			分析：
@@ -60,9 +59,81 @@ void ThreadMainMux(int x)
 		*/
 	}
 }
+static timed_mutex tmux;/*超时锁*/
+
+void ThreadMainTime(const int x)
+{
+	for (;;) {
+		/*
+			if (!mux.try_lock()) {
+				sleep_for(milliseconds(500));
+				continue;
+			}
+		*/
+		/*超时锁相当于上面的try_lock()与sleep_for的相结合，下面这种写法的好处是语法精简*/
+		if (!tmux.try_lock_for(milliseconds(500))){/*超时锁*/
+
+			cout << x << "[try_lock_for timeout]\n";/*作为超时日志，用于排查错误*/
+			continue;
+		}
+		cout << x << "[in]\n";
+		sleep_for(milliseconds(2000));
+		tmux.unlock();
+		sleep_for(milliseconds(1));
+	}
+}
+
+static recursive_mutex rmux;/*递归锁(可重入)*/
+static recursive_timed_mutex rtmux;/*超时递归锁，用法与超时锁一样*/
+/*此处没有演示递归超时锁的应用*/
+
+void Task1()
+{
+	rmux.lock();
+	cout << __FUNCTION__ << "[in]\n";
+	rmux.unlock();
+}
+
+void Task2()
+{
+	rmux.lock();
+	cout << __FUNCTION__ << "[in]\n";
+	rmux.unlock();
+}
+
+void ThreadMainRec(const int x)
+{
+	for (;;) {
+		rmux.lock();
+		Task1();
+		cout << x << "[in]\n";
+		sleep_for(milliseconds(2000));
+		Task2();
+		rmux.unlock();
+		sleep_for(milliseconds(1));/*给系统有足够的时间去释放锁资源*/
+	}
+}
 
 int main(int argc, char* argv[])
 {
+	/*5*/
+
+	(void)getchar();
+	/*4*/
+	for (int i{}; i < 3; i++) {
+		thread th(ThreadMainRec, i + 1);
+		th.detach();
+	}
+	(void)getchar();
+
+	/*3*/
+	for (int i{}; i < 3; i++) {
+		thread th(ThreadMainTime, i + 1);
+		th.detach();
+	}
+	(void)getchar();
+
+	/*2*/
 	for (int i{}; i < 3; i++) {
 
 		thread th(ThreadMainMux, i + 1 );
@@ -70,6 +141,7 @@ int main(int argc, char* argv[])
 	}
 	(void)getchar();
 
+	/*1*/
 	for (int i{}; i < 10; i++){
 		thread th(TestThread);
 		th.detach();
