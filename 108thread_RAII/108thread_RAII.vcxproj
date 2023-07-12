@@ -128,6 +128,10 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="108thread_RAII.cpp" />
+    <ClCompile Include="XMutex.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="XMutex.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
