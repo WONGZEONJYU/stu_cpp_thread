@@ -15,11 +15,11 @@ void XMsgServer::SendMsg(const string& msg)
 void XMsgServer::Main()
 {
 	while (!is_exit()){
-
+		
 		sleep_for(milliseconds(10));
 		unique_lock<mutex> lock(mux_);
 
-		if (msgs_.empty()){
+		if (!msgs_.empty()){
 			continue;
 		}
 
