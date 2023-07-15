@@ -3,6 +3,7 @@
 #include <sstream>
 
 using namespace std;
+using namespace this_thread;
 
 int main(int argc, char* argv[])
 {
@@ -13,7 +14,7 @@ int main(int argc, char* argv[])
 		stringstream ss;
 		ss << "msg : " << i + 1;
 		server.SendMsg(ss.str());
-		this_thread::sleep_for(chrono::milliseconds(500));
+		sleep_for(chrono::milliseconds(500));
 	}
 
 	server.Stop();

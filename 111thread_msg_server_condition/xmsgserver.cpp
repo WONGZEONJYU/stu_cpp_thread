@@ -19,6 +19,12 @@ void XMsgServer::Main()
 	while (!is_exit()){
 		
 		unique_lock<mutex> lock(mux_);
+#if 0
+		cv_.wait(lock);
+		if (msgs_.empty()){
+			continue;
+		}
+#endif // 0
 
 		cv_.wait(lock, [this] {
 			cout << "Wait cv\n";
@@ -42,5 +48,3 @@ void XMsgServer::Stop()
 	cv_.notify_all();
 	Wait();
 }
-
-
