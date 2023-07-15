@@ -42,3 +42,5 @@ void XMsgServer::Stop()
 	cv_.notify_all();
 	Wait();
 }
+
+

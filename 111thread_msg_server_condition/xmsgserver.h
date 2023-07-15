@@ -19,6 +19,7 @@ private:
 	std::list<std::string> msgs_;
 	/*互斥访问消息队列*/
 	std::mutex mux_;
+	/*条件变量*/
 	std::condition_variable cv_;
 };
 
