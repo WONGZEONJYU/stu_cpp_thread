@@ -15,13 +15,13 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="116thread_pool_10.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
     <ClCompile Include="xtask.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="xthread_pool.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="118thread_pool_20.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>

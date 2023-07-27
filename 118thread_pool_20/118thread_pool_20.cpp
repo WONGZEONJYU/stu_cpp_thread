@@ -34,13 +34,23 @@ int main(int argc, char* argv[])
 	pool.Init(16);
 	pool.Start();
 
-	MyTask task1;
-	task1.name = "test name 001";
-	pool.AddTask(&task1);
+	//MyTask task1;
+	//task1.name = "test name 001";
+	//pool.AddTask(&task1);
 
-	MyTask task2;
-	task2.name = "test name 002";
-	pool.AddTask(&task2);
+	//MyTask task2;
+	//task2.name = "test name 002";
+	//pool.AddTask(&task2);
+	{
+		auto task3{ make_shared<MyTask>() };
+		task3->name = "test shared 003";
+		pool.AddTask(move(task3));
+
+		auto task4{ make_shared<MyTask>() };
+		task4->name = "test shared 004";
+		pool.AddTask(move(task4));
+	}
+
 	sleep_for(milliseconds(300));
 	cout << "task run count = " << pool.task_run_count() << "\n";
 

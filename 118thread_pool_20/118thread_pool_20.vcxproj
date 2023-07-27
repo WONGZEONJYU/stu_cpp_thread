@@ -127,7 +127,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="116thread_pool_10.cpp" />
+    <ClCompile Include="118thread_pool_20.cpp" />
     <ClCompile Include="xtask.cpp" />
     <ClCompile Include="xthread_pool.cpp" />
   </ItemGroup>

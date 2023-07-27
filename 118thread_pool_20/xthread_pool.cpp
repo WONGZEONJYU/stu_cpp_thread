@@ -25,7 +25,9 @@ void XThreadPool::Start()
 	}
 
 	for (int i {}; i < thread_num_; i++) {
-		auto th { new thread(&XThreadPool::Run, this) };
+		//auto th { new thread(&XThreadPool::Run, this) };
+		//threads_.push_back(move(th));
+		auto th { make_shared<thread>(&XThreadPool::Run, this) };
 		threads_.push_back(move(th));
 	}
 }
@@ -43,7 +45,7 @@ void XThreadPool::Stop()
 
 void XThreadPool::Run()
 {
-	cout << "begin " << __FUNCTION__ << " id : " << get_id() << '\n';
+	//cout << "begin " << __FUNCTION__ << " id : " << get_id() << '\n';
 	while (!is_exit()){
 		auto task{ GetTask() };
 
@@ -57,10 +59,10 @@ void XThreadPool::Run()
 		}
 		--task_run_count_;
 	}
-	cout << "end " << __FUNCTION__ << " id : " << get_id() << '\n';
+	//cout << "end " << __FUNCTION__ << " id : " << get_id() << '\n';
 }
 
-void XThreadPool::AddTask(XTask* task)
+void XThreadPool::AddTask(std::shared_ptr<XTask> task)
 {
 	unique_lock<mutex> lock(mux_);
 	task->is_exit = [this] {return is_exit(); };
@@ -69,7 +71,7 @@ void XThreadPool::AddTask(XTask* task)
 	cv_.notify_one();
 }
 
-XTask* XThreadPool::GetTask()
+std::shared_ptr<XTask> XThreadPool::GetTask()
 {
 	unique_lock<mutex> lock(mux_);
 
