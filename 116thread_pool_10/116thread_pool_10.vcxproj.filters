@@ -21,9 +21,15 @@
     <ClCompile Include="xthread_pool.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="xtask.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="xthread_pool.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="xtask.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>
