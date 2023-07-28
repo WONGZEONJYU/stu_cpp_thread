@@ -32,6 +32,8 @@ void XThreadPool::Start()
 	}
 }
 
+
+
 void XThreadPool::Stop()
 {
 	is_exit_ = true;
