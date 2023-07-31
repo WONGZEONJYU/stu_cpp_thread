@@ -28,8 +28,8 @@ int main(int argc, char* argv[])
 	pool.AddTask(vtask1);
 	auto re{ vtask1->GetReturn() };
 	std::cout << "vtask1->GetReturn() = " << re << "\n";
-	
-	//_CRT_UNUSED(getchar());
+	cout << "end\n";
+	_CRT_UNUSED(getchar());
 	return 0;
 }
 

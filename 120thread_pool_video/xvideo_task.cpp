@@ -15,7 +15,7 @@ int XVideoTask::Run()
 		ss << " -s " << width << "x" << height << " ";
 	}
 	
-	ss << this->out_path;
+	ss << out_path;
 	ss << " >" << get_id() << ".txt 2>&1";
 	cout << ss.str().c_str() << '\n';
 	return system(ss.str().c_str());
