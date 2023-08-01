@@ -19,6 +19,4 @@ int XVideoTask::Run()
 	ss << " >" << get_id() << ".txt 2>&1";
 	cout << ss.str().c_str() << '\n';
 	return system(ss.str().c_str());
-
 }
-

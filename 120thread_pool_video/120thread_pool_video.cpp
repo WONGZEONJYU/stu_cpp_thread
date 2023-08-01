@@ -19,7 +19,36 @@ int main(int argc, char* argv[])
 	XThreadPool pool;
 	pool.Init(16);
 	pool.Start();
+	sleep_for(milliseconds(200));
 
+	for (;;){
+
+		sleep_for(milliseconds(200));
+		cout << "\n=======================================================\n";
+		auto task{ make_shared<XVideoTask>() };
+		cout << "Please enter the command(v , e , l) :\n";
+		string cmd;
+		cin >> cmd;
+		if ("e" == cmd){
+			break;
+		}
+		else if ("l" == cmd) {
+			cout << "task run count = " << pool.task_run_count() << '\n';
+			continue;
+		}
+
+		cout << "video source :\n";
+		cin >> task->in_path;
+		cout << "video target :\n";
+		cin >> task->out_path;
+		cout << "output width :\n";
+		cin >> task->width;
+		cout << "output height :\n";
+		cin >> task->height;
+		pool.AddTask(task);
+	}
+
+#if 0
 	auto vtask1{ make_shared<XVideoTask>() };
 	vtask1->in_path = "test.mp4";
 	vtask1->out_path = "640.mp4";
@@ -29,6 +58,7 @@ int main(int argc, char* argv[])
 	auto re{ vtask1->GetReturn() };
 	std::cout << "vtask1->GetReturn() = " << re << "\n";
 	cout << "end\n";
+#endif
 	_CRT_UNUSED(getchar());
 	return 0;
 }
