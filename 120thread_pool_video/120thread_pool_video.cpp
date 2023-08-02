@@ -17,7 +17,7 @@ using namespace this_thread;
 int main(int argc, char* argv[])
 {
 	XThreadPool pool;
-	pool.Init(16);
+	pool.Init(thread::hardware_concurrency());
 	pool.Start();
 	sleep_for(milliseconds(200));
 
