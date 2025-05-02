@@ -1,42 +1,34 @@
 #include <iostream>
 #include <thread>
-#include "xthread_pool.h"
-#include "xvideo_task.h"
+#include "xthread_pool.hpp"
+#include "xvideo_task.hpp"
 
 using namespace std;
 using namespace chrono;
 using namespace this_thread;
 
-/*命令行视频转码工具*/
-/*ffmpeg工具*/
-/*用户输入 视频源 输出视频尺寸*/
-/*在线程池中执行转码任务*/
-/*转码任务调用ffmpeg*/
-/*	ffmpeg -y -i test.mp4 -s 400x300 400.mp4 >log.txt 2>&1	*/
+int main(const int argc,const char* argv[]){
 
-int main(int argc, char* argv[])
-{
 	XThreadPool pool;
 	pool.Init(thread::hardware_concurrency());
 	pool.Start();
-	sleep_for(milliseconds(200));
+	sleep_for(200ms);
 
-	for (;;){
-
-		sleep_for(milliseconds(200));
+	while (true){
+		sleep_for(200ms);
 		cout << "\n=======================================================\n";
-		auto task{ make_shared<XVideoTask>() };
 		cout << "Please enter the command(v , e , l) :\n";
 		string cmd;
 		cin >> cmd;
+
 		if ("e" == cmd){
 			break;
-		}
-		else if ("l" == cmd) {
+		}else if ("l" == cmd) {
 			cout << "task run count = " << pool.task_run_count() << '\n';
 			continue;
-		}
+		}else{}
 
+		const auto task{ make_shared<XVideoTask>() };
 		cout << "video source :\n";
 		cin >> task->in_path;
 		cout << "video target :\n";
@@ -45,7 +37,7 @@ int main(int argc, char* argv[])
 		cin >> task->width;
 		cout << "output height :\n";
 		cin >> task->height;
-		pool.AddTask(task);
+		pool.add_Task(task);
 	}
 
 #if 0
@@ -59,7 +51,7 @@ int main(int argc, char* argv[])
 	std::cout << "vtask1->GetReturn() = " << re << "\n";
 	cout << "end\n";
 #endif
-	_CRT_UNUSED(getchar());
+	getchar();
 	return 0;
 }
 

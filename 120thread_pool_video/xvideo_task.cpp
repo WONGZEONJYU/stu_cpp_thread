@@ -1,17 +1,16 @@
-#include "xvideo_task.h"
+#include "xvideo_task.hpp"
 #include <sstream>
+#include <iostream>
 
 using namespace std;
 using namespace this_thread;
 
-int XVideoTask::Run() 
-{
+int64_t XVideoTask::Run() const{
 	/*	ffmpeg.exe -y -i test.mp4 -s 640x480 600.mp4 >log.txt 2>&1*/
 	stringstream ss;
-
 	ss << "ffmpeg.exe -y -i " << in_path << " ";
 
-	if ((width > 0) && (height > 0)){
+	if (width > 0 && height > 0){
 		ss << " -s " << width << "x" << height << " ";
 	}
 	

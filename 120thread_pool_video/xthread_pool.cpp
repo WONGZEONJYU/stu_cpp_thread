@@ -1,94 +1,86 @@
-#include "xthread_pool.h"
+#include "xthread_pool.hpp"
+#include "xtask.hpp"
 #include <iostream>
+
 using namespace std;
 using namespace this_thread;
 
-void XThreadPool::Init(const int num)
-{
-	unique_lock<mutex> lock(mux_);
-	thread_num_ = num;
-	cout << __FUNCTION__ << " : " << num << '\n';
+void XThreadPool::Init(const uint64_t &num){
+	m_thread_num_ = num;
 }
 
-void XThreadPool::Start()
-{
-	unique_lock<mutex> lock(mux_);
+void XThreadPool::Start(){
 
-	if (thread_num_ <= 0){
+	if (m_thread_num_ <= 0){
 		cerr << "Please Init XThreadPool\n";
 		return;
 	}
 
-	if (!threads_.empty()){
-		cerr << "Thread pool has start!\n";
-		return;
+	{
+		unique_lock lock(m_mux_);
+		if (!m_threads_.empty()){
+			cerr << "Thread pool has start!\n";
+			return;
+		}
 	}
 
-	for (int i {}; i < thread_num_; i++) {
-		//auto th { new thread(&XThreadPool::Run, this) };
-		//threads_.push_back(move(th));
-		auto th { make_shared<thread>(&XThreadPool::Run, this) };
-		threads_.push_back(move(th));
+	for (uint64_t i {}; i < m_thread_num_; ++i) {
+		m_threads_.push_back(make_shared<thread>(&XThreadPool::Run, this));
 	}
 }
 
-void XThreadPool::Stop()
-{
-	is_exit_ = true;
-	cv_.notify_all();
-	for (auto& th : threads_){
+void XThreadPool::Stop(){
+	m_is_exit_ = true;
+	m_cv_.notify_all();
+	for (const auto& th: m_threads_){
 		th->join();
 	}
-	unique_lock<mutex> lock(mux_);
-	threads_.clear();
 }
 
-void XThreadPool::Run()
-{
+void XThreadPool::Run(){
 	//cout << "begin " << __FUNCTION__ << " id : " << get_id() << '\n';
-	while (!is_exit()){
-		auto task{ GetTask() };
 
-		if (!task){ continue; }
+	while (!m_is_exit_){
+		const auto task{get_Task()};
+		if (!task) {
+			continue;
+		}
 		++task_run_count_;
 		try{
-			const auto re{ task->Run() };
-			task->SetValue(re);
-		}
-		catch (...){
-			cerr << "error\n";
+			task->set_return(task->Run());
+		}catch (const exception& e){
+			cerr << "error : " << e.what() << '\n';
 		}
 		--task_run_count_;
 	}
 	//cout << "end " << __FUNCTION__ << " id : " << get_id() << '\n';
 }
 
-void XThreadPool::AddTask(std::shared_ptr<XTask> task)
-{
-	unique_lock<mutex> lock(mux_);
-	task->is_exit = [this] { return is_exit(); };
-	tasks_.push_back(task);
-	lock.unlock();
-	cv_.notify_one();
+void XThreadPool::add_Task(const std::shared_ptr<XTask> &task){
+	task->set_is_exit([this] { return is_exit(); });
+	{
+		unique_lock lock(m_mux_);
+		m_tasks_.push_back(task);
+	}
+	m_cv_.notify_one();
 }
 
-std::shared_ptr<XTask> XThreadPool::GetTask()
-{
-	unique_lock<mutex> lock(mux_);
-
-	if (tasks_.empty()){
-		cv_.wait(lock);
+std::shared_ptr<XTask> XThreadPool::get_Task(){
+	if (m_is_exit_) {
+		return {};
 	}
 
-	if (is_exit()) {
-		return nullptr;
+	unique_lock lock(m_mux_);
+
+	if (m_tasks_.empty()){
+		m_cv_.wait(lock);
 	}
 
-	if (tasks_.empty()) {
-		return nullptr;
+	if (m_tasks_.empty()) {
+		return {};
 	}
 
-	auto task{ tasks_.front() };
-	tasks_.pop_front();
+	const auto task{ m_tasks_.front() };
+	m_tasks_.pop_front();
 	return task;
 }
