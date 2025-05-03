@@ -57,7 +57,7 @@ void XThreadPool::Run(){
 }
 
 void XThreadPool::add_Task(const std::shared_ptr<XTask> &task){
-	task->set_is_exit([this] { return is_exit(); });
+	task->set_exit_func([this]{ return is_exit(); });
 	{
 		unique_lock lock(m_mux_);
 		m_tasks_.push_back(task);

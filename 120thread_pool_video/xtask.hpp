@@ -5,14 +5,12 @@
 #include <functional>
 #include <future>
 
-class XThreadPool;
-
 class XTask {
 
 	friend class XThreadPool;
 
-	void set_is_exit(auto && f) {
-		is_exit = f;
+	void set_exit_func(auto && f) {
+		m_is_exit_ = f;
 	}
 
 	void set_return(const int64_t &v){
@@ -23,6 +21,8 @@ class XTask {
 	[[nodiscard]] virtual int64_t Run() const {
 		return 0;
 	}
+
+	void swap_(XTask &);
 
 public:
 	XTask(const XTask&) = delete;
@@ -39,7 +39,7 @@ public:
 	}
 
 protected:
-	std::function<bool()> is_exit{};
+	std::function<bool()> m_is_exit_{};
 private:
 	std::promise<int64_t> m_promise_{};
 };
