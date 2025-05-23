@@ -4,14 +4,14 @@
 #include <string>
 #include <vector>
 #include <execution>
+
 using namespace std;
 using namespace chrono;
 
 static constexpr char base16[]{ "0123456789abcdef" };
 static void Base16Encode(const uint8_t* data, const int size, uint8_t* out)
 {
-	for (int i{}; i < size; i++)
-	{
+	for (int i{}; i < size; i++) {
 		const auto t{ data[i] };
 		const auto a{ base16[t >> 4] }, b{ base16[t & 0x0f] };
 		out[i * 2] = a;
@@ -19,19 +19,20 @@ static void Base16Encode(const uint8_t* data, const int size, uint8_t* out)
 	}
 }
 
-/*C++11¶àºËbase16±àÂë*/
+#if 0
+/*C++11å¤šæ ¸base16ç¼–ç */
 static void Base16EncodeThread(const vector<uint8_t>& data, vector<uint8_t>& out)
 {
 	const auto size{ data.size() };
 	//cout << "size : " << size << '\n';
-	/*ÏµÍ³Ö§³ÖµÄÏß³ÌºËĞÄÊı*/
+	/*ç³»ç»Ÿæ”¯æŒçš„çº¿ç¨‹æ ¸å¿ƒæ•°*/
 	auto th_count{ thread::hardware_concurrency() };
 	//cout << "th_count : " << th_count << '\n';
-	/*¶ÔÊı¾İ½øĞĞÇĞÆ¬*/
+	/*å¯¹æ•°æ®è¿›è¡Œåˆ‡ç‰‡*/
 	auto slice_count(size / th_count);
 	//cout << "slice_count : " << slice_count << '\n';
 
-	if (size < th_count) { /*Èç¹ûÊı¾İÁ¿Ì«Ğ¡,Ö»ÇĞÒ»Æ¬*/
+	if (size < th_count) { /*å¦‚æœæ•°æ®é‡å¤ªå°,åªåˆ‡ä¸€ç‰‡*/
 		th_count = 1;
 		slice_count = size;
 	}
@@ -39,7 +40,7 @@ static void Base16EncodeThread(const vector<uint8_t>& data, vector<uint8_t>& out
 	auto d{ data.data() };
 	auto o{ out.data() };
 
-	/*×¼±¸ºÃÏß³Ì*/
+	/*å‡†å¤‡å¥½çº¿ç¨‹*/
 	vector<thread> ths(th_count);
 	//ths.resize(th_count);
 
@@ -48,7 +49,7 @@ static void Base16EncodeThread(const vector<uint8_t>& data, vector<uint8_t>& out
 		const auto offset{ i * slice_count };
 		auto count{ slice_count };
 
-		/*´¦Àí×îºóÒ»¸öÏß³Ì*/
+		/*å¤„ç†æœ€åä¸€ä¸ªçº¿ç¨‹*/
 		if ((th_count > 1) && ((th_count - 1) == i)) {
 			count = slice_count + size % th_count;
 			//cout << "count :" << count << '\n';
@@ -62,30 +63,32 @@ static void Base16EncodeThread(const vector<uint8_t>& data, vector<uint8_t>& out
 		th.join();
 	}
 }
+#endif /*0*/
 
-int main(int argc, char* argv[])
-{
-	string s{ "²âÊÔbase16±àÂë" };
+int main(int argc, const char* argv[]){
+	const string s{ "æµ‹è¯•base16ç¼–ç " };
 
-	uint8_t buf[1024]{};
-	Base16Encode(reinterpret_cast<const uint8_t*>(s.data()), s.size(), buf);
-	cout << "base16: " << buf << "\n\n";
+	vector<uint8_t> buf(1024,0);
+	Base16Encode(reinterpret_cast<const uint8_t*>(s.data()), static_cast<int>(s.size()), buf.data());
+	cout << "base16: " << buf.data() << "\n\n";
 
-	/*³õÊ¼»¯Êı¾İ*/
-	vector<uint8_t> in_data(1024 * 1024 * 200);
-	//in_data.resize(1024 * 1024 * 20);
-	for (int i{}; i < in_data.size(); i++) {
-		in_data[i] = i % 256;
+	/*åˆå§‹åŒ–æ•°æ®*/
+	vector<uint8_t> in_data(1024 * 1024 * 200,0);
+	for (int i{};auto &item:in_data) {
+		item = i++ % 256;
 	}
 
-	/*×¼±¸ºÃÊä³ö½á¹ûµÄ¿Õ¼ä*/
-	vector<uint8_t> out_data(in_data.size() * 2);
-	//out_data.resize(in_data.size() * 2);
-	/*Êä³ö½á¹û±£´æµÄÈİÁ¿Îª´ı±àÂëÊı¾İÁ¿µÄ2±¶*/
+	// for (int i{}; i < in_data.size(); i++) {
+	// 	in_data[i] = i % 256;
+	// }
+
+	/*å‡†å¤‡å¥½è¾“å‡ºç»“æœçš„ç©ºé—´*/
+	vector<uint8_t> out_data(in_data.size() * 2,0);
+	/*è¾“å‡ºç»“æœä¿å­˜çš„å®¹é‡ä¸ºå¾…ç¼–ç æ•°æ®é‡çš„2å€*/
 
 #if 0
 
-	/*²âÊÔ c++11 µ¥Ïß³Ìbase16±àÂëĞ§ÂÊ*/
+	/*æµ‹è¯• c++11 å•çº¿ç¨‹base16ç¼–ç æ•ˆç‡*/
 	{
 		cout << "Single-threaded base16 encoding starts calculation\n";
 		auto start{ system_clock::now() };
@@ -99,7 +102,7 @@ int main(int argc, char* argv[])
 		cout << "\n";
 	}
 
-	/*²âÊÔ c++11 ¶àÏß³ÌBase16±àÂëĞ§ÂÊ*/
+	/*æµ‹è¯• c++11 å¤šçº¿ç¨‹Base16ç¼–ç æ•ˆç‡*/
 	{
 		cout << "c++11 multi-threaded Base16 encoding starts calculation\n";
 		auto start{ system_clock::now() };
@@ -114,22 +117,21 @@ int main(int argc, char* argv[])
 	}
 
 #endif /*0*/
-
 #if 1
 
-	/*²âÊÔC++17 ¶àÏß³Ìbase16±àÂë*/
+	/*æµ‹è¯•C++17 å¤šçº¿ç¨‹base16ç¼–ç */
 	{
 		cout << "C++17 multi-threaded Base16 encoding starts calculation\n";
-		auto start{ system_clock::now() };
+		const auto start{ system_clock::now() };
 
-		/*Ö±½ÓÈ¡in_dataÓëout_dataµÄµØÖ·,ÎªÁË¾ÍÊÇĞÔÄÜÉÏµÄÓÅ»¯*/
+		/*ç›´æ¥å–in_dataä¸out_dataçš„åœ°å€,ä¸ºäº†å°±æ˜¯æ€§èƒ½ä¸Šçš„ä¼˜åŒ–*/
 		const auto idata{ in_data.data() };
 		const auto odata{ out_data.data() };
 
-		/*#include <execution> ĞèC++17ÒÔÉÏ°æ±¾²ÅÖ§³Ö*/
-		/* execution::par ´ú±í²¢ĞĞ¶àºË*/
+		/*#include <execution> éœ€C++17ä»¥ä¸Šç‰ˆæœ¬æ‰æ”¯æŒ*/
+		/* execution::par ä»£è¡¨å¹¶è¡Œå¤šæ ¸*/
 
-		std::for_each (execution::par, in_data.begin(), in_data.end(),
+		std::for_each (std::execution::par, in_data.begin(), in_data.end(),
 			[&](auto& d) {
 				const auto a{ base16[d >> 4] }, b{ base16[d & 0x0f] };
 				auto index{ &d - idata };
@@ -137,8 +139,8 @@ int main(int argc, char* argv[])
 				odata[index * 2 + 1] = b;
 		});
 
-		auto end{ system_clock::now() };
-		auto duration{ duration_cast<milliseconds>(end - start) };
+		const auto end{ system_clock::now() };
+		const auto duration{ duration_cast<milliseconds>(end - start) };
 		cout << "Encoding: " << in_data.size() <<
 			" Bytes takes " << duration.count() << " ms\n";
 
@@ -147,7 +149,6 @@ int main(int argc, char* argv[])
 	}
 
 #endif
-
-	_CRT_UNUSED(getchar());
+	(void)getchar();
 	return 0;
 }
