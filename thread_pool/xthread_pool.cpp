@@ -47,8 +47,7 @@ namespace xtd {
 			}
 			++task_run_count_;
 			try{
-				//task->set_return(task->Run());
-				task->m_promise_.set_value(task->Run());
+				task->set_return_(task->Run());
 			}catch (const exception& e){
 				cerr << "error : " << e.what() << '\n';
 			}
@@ -57,7 +56,7 @@ namespace xtd {
 	}
 
 	void XThreadPool::add_Task(const std::shared_ptr<XTask> &task){
-		task->set_exit_func([this]{ return is_exit(); });
+		task->set_exit_([this]{ return is_exit(); });
 		{
 			unique_lock lock(m_mux_);
 			m_tasks_.push_back(task);
