@@ -2,7 +2,7 @@
 
 namespace xtd {
 
-    void XAbstractTask::swap(XAbstractTask &rhs) {
+    void XAbstractTask::swap(XAbstractTask &rhs) noexcept {
         std::swap(m_is_exit_,rhs.m_is_exit_);
         std::swap(m_return_,rhs.m_return_);
     }

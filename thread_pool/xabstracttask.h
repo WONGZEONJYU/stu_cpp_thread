@@ -7,7 +7,7 @@
 
 namespace xtd {
     class XAbstractTask {
-        void swap(XAbstractTask &);
+        void swap(XAbstractTask &) noexcept;
     protected:
         using exit_t = std::function<bool()>;
 
